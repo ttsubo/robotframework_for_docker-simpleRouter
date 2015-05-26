@@ -13,5 +13,5 @@ Create Route
     ${data}=  Get Json From Dict  ${data}
     ${result} =  Post  ${host}  /openflow/0000000000000001/route  ${data}
     Log     ${result.status_code}
-    Log     ${result.json()}
+    Log     ${result.json()['route']}
     Should Be Equal As Strings  ${result.status_code}  200

@@ -4,23 +4,30 @@ Resource    Resources/get_event.robot
 Resource    Resources/get_rib.robot
 
 *** Variables ***
-${PEERIP}         192.168.101.102
-${MED}            100
-${myhost}         BGP4
-${myport}         8084
-${peerhost}       BGP1
-${peerport}       8081
+${PEERIP}          192.168.101.102
+${MED}             100
+${myhost}          BGP4
+${myport}          8084
+${peerhost}        BGP1
+${peerport}        8081
+${check_med}       100
+${expected_value}  OK
 
 *** TestCases ***
-Change Med(100) in BGP4
+(4-1) Change Med(100) in vrf(65010:101) in Router(BGP4)
     ${neighbor}=  Create Dictionary   peerIp=${PEERIP}
                   ...                 med=${MED}
     Change Med  ${neighbor}  ${myhost}  ${myport}
 
-Get Rib in BGP1
-    Sleep  10 seconds
-    Get Rib  ${peerhost}  ${peerport}
+(4-2) Check previous med in RoutingTable in Peer Router(BGP1)
+    Wait Until Keyword Succeeds  60s  10s
+    ...  Check Rib_med information
+    ...  ${peerhost}
+    ...  ${peerport}
+    ...  ${check_med}
 
-Get Event in TestServer
-    Sleep  20 seconds
-    Get Event
+(4-3) check reachability from PE1(192.168.1.102) to PE2(192.168.2.101)
+    Sleep  30 seconds
+    ${result}=  Get Event
+    Sleep  10 seconds
+    Should Be Equal As Strings  ${result}  ${expected_value}
